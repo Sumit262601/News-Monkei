@@ -24,7 +24,7 @@ You may also see any lint errors in the console.
 
 ### `news_api_key`
 
-This apiKey will provided to `newsapikey website` [NewsApiKey](https://newsapi.org/).
+This apiKey will provided to `newsapikey` [NewsApiKey](https://newsapi.org/).
 
 ## Learn More
 

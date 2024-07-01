@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NewsItems from './NewsItems';
 import Loading from './Spinner';
 import PropTypes from 'prop-types'
@@ -13,25 +13,33 @@ const News = (props) => {
   const capitalizedFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
-  
+
   const updateNews = async () => {
-    props.setProgress(10);
-    const url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apiKey}&page=${page}&pageSize=${props.pageSize}`;
-    setLoading(true)
-    let data = await fetch(url);
-    props.setProgress(30);
-    let parsedData = await data.json();
-    props.setProgress(70);
-    setArticles(parsedData.articles)
-    setTotalResults(parsedData.totalResults)
-    setLoading(false)
-    props.setProgress(100);
-  }
+    try {
+      props.setProgress(10);
+      const url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apiKey}&page=${page}&pageSize=${props.pageSize}`;
+      setLoading(true);
+      let response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      props.setProgress(30);
+      let parsedData = await response.json();
+      props.setProgress(70);
+      setArticles(parsedData.articles);
+      setTotalResults(parsedData.totalResults);
+      setLoading(false);
+      props.setProgress(100);
+    } catch (error) {
+      console.error('Fetching news failed: ', error);
+      props.setProgress(100);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     updateNews();
-
-  }, [])
+  }, [props.country, props.category, props.apiKey, props.pageSize, page]);
 
   const fetchMoreData = async () => {
     const url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apiKey}&page=${page + 1}&pageSize=${props.pageSize}`;
@@ -40,7 +48,6 @@ const News = (props) => {
     let parsedData = await data.json();
     setArticles(articles.concat(parsedData.articles))
     setTotalResults(parsedData.totalResults)
-
   };
 
   return (
